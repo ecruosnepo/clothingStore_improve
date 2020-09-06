@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.store.dao.CategoryDao">
+	<select id="getAllCatDao" resultType="com.store.dto.CategoryDto">
+		select * from categorys;
+	</select>
+	
+	<select id="getCatDao" resultType="com.store.dto.CategoryDto">
+		select * from categorys where cat_id=#{cat_id};
+	</select>
+</mapper>
+

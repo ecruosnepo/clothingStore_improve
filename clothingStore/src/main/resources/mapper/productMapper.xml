@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.store.dao.ProductDao">
+	<!-- 모든 상품 정보 조회 -->
+	<select id="adminProductDao">
+		select * from products p join stock s on p.pd_id=s.pd_id order by p.pd_id desc;
+	</select>
+	
+	<!-- 상품 목록 -->
+	<select id="listProductDao" resultType="com.store.dto.ProductDto">
+		select * 
+		from products p
+		join categorys c on p.cat_id=c.cat_id
+		join stock s on p.pd_id=s.pd_id
+		<if test="cat_id_ref==000">
+			
+		</if>
+		<if test="cat_id==null and cat_id_ref!=0">
+			where c.cat_id_ref=#{cat_id_ref}
+		</if>
+		<if test="cat_id!=null">
+			where p.cat_id=#{cat_id}
+		</if>
+		<if test='size != null'>
+			and 
+			<foreach item="item" collection="size" separator="or">
+				s.pd_size = #{item}			
+			</foreach>			
+		</if>
+		group by p.pd_id
+		<if test='sortby != null'>
+			<choose>
+				<when test='sortby eq "low_price"'>
+					order by p.pd_price;
+				</when>
+				<when test='sortby eq "high_price"'>
+					order by p.pd_price desc;
+				</when>
+				<when test='sortby eq "new"'>
+					order by p.pd_id desc;
+				</when>
+			</choose>		
+		</if>
+	</select>
+	
+	<!-- 상품 상세 -->
+	<select id="viewProductDao" resultType="com.store.dto.ProductDto">
+		select * from products where pd_id=#{0};
+	</select>
+	
+	<!-- 상품 상세 + 카테고리 -->
+	<select id="adminViewProductDao" resultType="com.store.dto.ProductDto">
+		select * from products p join categorys c on c.cat_id=p.cat_id where pd_id=#{pd_id};
+	</select>
+	
+	<!-- 색상 목록 -->
+	<select id="getColorListDao" resultType="com.store.dto.ProductDto">
+		select pd_id, pd_name, pd_img, pd_color from products where pd_name=#{0};
+	</select>
+	
+	<!-- 상품 번호 가져오기 -->
+	<select id="getProductIdDao" resultType="int">
+		select pd_id from products where pd_name=#{param1} and pd_color=#{param2};
+	</select>
+	
+	<!-- 상품 등록 -->
+	<insert id="regProductDao" parameterType="hashMap">
+		insert into products (pd_name, pd_price, pd_color, pd_desc, cat_id, discount, pd_img) values (#{pd_name}, #{pd_price}, #{pd_color}, #{pd_desc}, #{cat_id}, #{discount}, #{pd_img});
+	</insert>
+	
+	<!-- 상품 제거 -->
+	<delete id="deleteProductDao">
+		delete from products where id=#{0};
+	</delete>
+	
+	<!-- 상품 수정 -->
+	<update id="updateProductDao">
+		update products set pd_name=#{pd_name}, pd_price=#{pd_price}, pd_color=#{pd_color}, pd_desc=#{pd_desc}, cat_id=#{cat_id}, discount=#{discount}, pd_img=#{pd_img} where pd_id=#{pd_id};
+	</update>
+
+	<select id="adminListProductDao" resultType="com.store.dto.ProductDto">
+		select p.pd_id, p.pd_name, p.pd_color, s.pd_size, s.pd_stock from products as p inner join stock as s on p.pd_id=s.pd_id
+		<if test="search!=null">
+			where p.pd_name like #{search} or p.cat_id=ANY(select cat_id from categorys where cat_name like #{search})
+		</if>
+		order by p.pd_id desc;
+	</select>
+	
+	<select id="listPdCountDao" resultType="_int">
+		select count(*) from products as p inner join stock as s on p.pd_id=s.pd_id
+		<if test="search!=null">
+			where p.pd_name like #{search} or p.cat_id=ANY(select cat_id from categorys where cat_name like #{search})
+		</if>
+		order by p.pd_id;
+	</select>
+	
+	<delete id="adminDeletePdsDao">
+		delete from products where pd_id=#{pd_id}
+	</delete>
+	
+	<select id="adminImageDao" resultType="String">
+		select pd_img from products where pd_id=#{pd_id}
+	</select>
+
+	<!-- 상품 검색 목록 -->
+	<select id="listSearchProductDao" resultType="com.store.dto.ProductDto">
+		select * 
+		from products p join stock s on p.pd_id=s.pd_id
+		where p.pd_name like CONCAT('%',#{keyword},'%') 
+			<if test="size!=null">
+				and 
+				<foreach item="item" collection="size" separator="or">
+					s.pd_size = #{item}
+				</foreach>
+			</if>
+				group by p.pd_id
+			<choose>
+				<when test='sortby eq "low_price"'>
+					order by p.pd_price;
+				</when>
+				<when test='sortby eq "high_price"'>
+					order by p.pd_price desc;
+				</when>
+				<when test='sortby eq "new" or sortby eq null'>
+					order by p.pd_id desc;
+				</when>
+			</choose>
+	</select>
+	
+	<select id="adPdMiniSearchDao" resultType="com.store.dto.ProductDto">
+		select pd_id, pd_name, pd_color,pd_price from products where pd_name like #{search} order by pd_id;
+	</select>
+</mapper>

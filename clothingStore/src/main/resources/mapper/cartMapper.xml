@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.store.dao.CartDao">
+	<select id="cartListDao" resultType="com.store.dto.CartListDto">
+		select c.cart_id, c.pd_size, c.pd_quantity, p.pd_name, p.pd_price, p.pd_id, p.pd_color, p.pd_price, p.pd_img, s.pd_stock
+		from cart c 
+		join products p on c.pd_id=p.pd_id
+		join stock s on c.pd_size=s.pd_size and c.pd_id=s.pd_id
+		where c.user_email=#{user_email} order by cart_id desc;
+	</select>
+	
+	<select id="cartDuplicateCheckDao" resultType="com.store.dto.CartDto">
+		select * from cart where user_email=#{user_email} and pd_id=#{pd_id} and pd_size=#{pd_size};
+	</select>
+
+	<insert id="addCartDao" parameterType="hashMap">
+		insert into cart (user_email,pd_id,pd_size,pd_quantity) values (#{user_email}, #{pd_id}, #{pd_size}, #{pd_quantity});
+	</insert>
+	
+	<delete id="deleteCartDao">
+		delete from cart where cart_id=#{cart_id};
+	</delete>
+	
+	<delete id="deleteOrderCartDao">
+		delete from cart where user_email=#{user_email};
+	</delete>
+	
+	<update id="updateQuantityCartDao">	
+		update cart set pd_quantity=#{param2} where cart_id=#{param1}; 
+	</update>
+	
+	<update id="updateDuplicateCartDao">	
+		update cart set pd_quantity=pd_quantity+1 where cart_id=#{param1}; 
+	</update>
+	
+	<delete id="deleteUserCartDao">
+		delete from cart where user_email=#{user_email};
+	</delete>
+	
+	<select id="cartInfoDao" resultType="com.store.dto.CartDto">
+		select c.pd_id, c.pd_size, c.pd_quantity, p.pd_price from cart c join products p on c.pd_id=p.pd_id where c.user_email=#{user_email};
+	</select>
+</mapper>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.store.dao.OrderDao"> 
+	<select id="userOrderListDao" resultType="com.store.dto.OrderDto"> 
+		SELECT DISTINCT o.order_id, p.pd_name, o.order_state, o.payDate FROM shop.order AS o 
+		JOIN shop.order_detail AS od ON o.order_id=od.order_id
+		JOIN shop.products AS p ON p.pd_id=od.pd_id
+		WHERE o.user_email=#{user_email} ORDER BY o.payDate DESC;
+	</select>
+	
+	<select id="adminOrderListDao" resultType="com.store.dto.OrderDto"> 
+		select order_id, user_email, total_price, order_state, payDate from shop.order order by payDate DESC
+	</select>
+	
+	<select id="adminOrderCountDao" resultType="_int">
+		select count(*) from shop.order;
+	</select>
+	
+	<select id="adOrderViewDao" resultType="com.store.dto.OrderDto" >
+		select * from shop.order where order_id=#{order_id}
+	</select>
+	
+	<insert id="addOrderDao" parameterType="com.store.dto.OrderDto"> 
+		insert into `order` (order_id, user_email, dv_name, dv_address1, dv_address2, dv_address3, dv_address4, dv_phone, dv_option, dv_message, total_price, payment_method) 
+		values (#{order_id}, #{user_email}, #{dv_name}, #{dv_address1}, #{dv_address2}, #{dv_address3}, #{dv_address4}, #{dv_phone}, #{dv_option}, #{dv_message}, #{total_price}, #{payment_method});
+	</insert>
+	
+	<insert id="addOrderDetailDao"> 
+		insert into order_detail (order_id, pd_id, pd_size, pd_quantity, price_sum) select #{order_id}, pd_id, pd_size, pd_quantity, #{price_sum} from cart where user_email=#{user_email}; 
+	</insert>
+	
+	<update id="adOrderUpdateDao">
+		update `order` set 
+		dv_name='${dv_name}', dv_address1=#{dv_address1}, dv_address2=#{dv_address2}, 
+		dv_address3=#{dv_address3}, dv_address4=#{dv_address4}, dv_phone=#{dv_phone}, 
+		dv_message=#{dv_message}, dv_option=#{dv_option}, total_price=#{total_price}, order_state=#{order_state}  
+		where order_id=#{order_id};
+	</update>
+	
+	<select id="selectPdMyPage" resultType="com.store.dto.MyPageDto">
+		SELECT 
+			<!-- a.pd_img, a.pd_name, a.pd_price , a.pd_id, b.pd_quantity, a.pd_color,
+			b.pd_size, b.price_sum -->
+			*
+		FROM 
+			products a, order_detail b
+		JOIN
+			`order` o
+		ON
+			o.order_id=b.order_id
+		WHERE 
+			a.pd_id = b.pd_id
+		    AND
+		    o.user_email = #{user_email};
+	</select>
+
+	<select id="selectOrderList" resultType="com.store.dto.OrderDto">
+		SELECT 
+		    payDate, order_id, total_price, dv_name, dv_address1, dv_address2, dv_address3, dv_address4, dv_option  
+		FROM
+		    `order` o 
+		WHERE 
+		    user_email = #{user_email} ORDER BY payDate DESC
+	</select>
+	
+	<select id="selectOrderDto" resultType="com.store.dto.OrderDto">
+	    SELECT * FROM shop.order_detail;
+	</select>
+</mapper>

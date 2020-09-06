@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.store.dao.StockDao">
+	<insert id="addStockDao">
+		insert into stock (pd_id, pd_stock, pd_size) values (#{pd_id}, #{pd_stock}, #{pd_size});
+	</insert>
+
+	<select id="countStockDao" resultType="_int" >
+		select count(*) from stock where pd_id=#{pd_id}
+	</select>
+	
+	<delete id="deleteStockDao">
+		delete from stock where pd_size=#{pd_size} and pd_id=#{pd_id}
+	</delete>
+
+	<update id="orderUpdateStockDao">
+		update stock set
+		<choose>
+			<when test="op == 'sum'">
+				pd_stock=pd_stock+#{pd_quantity}
+			</when>
+			<when test="op == 'sub'">
+				pd_stock=pd_stock-#{pd_quantity} 
+			</when>		
+		</choose>
+		where pd_id=#{pd_id} and pd_size=#{pd_size};
+	</update>
+	
+	<update id="updateStockDao">
+		update stock set pd_stock=#{pd_stock} where pd_id=#{pd_id} and pd_size=#{pd_size};		
+	</update>
+	
+	<select id="checkStockDao" resultType="integer">
+		select pd_stock from stock where pd_id=#{pd_id} and pd_size=#{pd_size};		
+	</select>
+	
+	<select id="productStockDao" resultType="com.store.dto.StockDto" >
+		select * from stock where pd_id=#{pd_id} and pd_stock>0;
+	</select>
+</mapper>

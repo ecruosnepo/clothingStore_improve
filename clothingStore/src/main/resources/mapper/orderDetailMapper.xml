@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="com.store.dao.OrderDetailDao"> 
+	<select id="orderDetailListDao" resultType="com.store.dto.OrderDetailDto">
+		SELECT od.order_id, od.pd_id, od.pd_size, od.pd_quantity, od.price_sum, p.pd_name, p.pd_price, p.pd_color
+		FROM shop.order_detail as od join shop.products as p on od.pd_id=p.pd_id where od.order_id=#{order_id};
+	</select>
+	
+	<select id="orderDetailCountDao" resultType="_int">
+		SELECT count(*) FROM shop.order_detail WHERE order_id=#{order_id};
+	</select>
+</mapper>

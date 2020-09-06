@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.store.dao.BoardDao"> 
+
+<select id="boardListAllDao" resultType="com.store.dto.BoardDto"> 
+	select id,b_check,user_email,title,boardCat,regDate from board 
+	<if test='search != null || boardCat != null'>
+	 	where user_email like #{search} and boardCat like #{boardCat}
+	</if>
+	order by regDate desc;
+</select>
+
+<select id="boardListDao" resultType="com.store.dto.BoardDto"> 
+	select id,b_check,user_email,title,boardCat,regDate from board where user_email=#{user_email} order by regDate DESC
+</select>
+
+<insert id="boardWriteDao" parameterType="hashMap">
+	insert into board (b_check,user_email,title,question,boardCat,file,orderId,regDate)
+	values (#{b_check},#{user_email},#{title},#{question},#{boardCat},#{file},#{orderId},now())
+</insert>
+
+<select id="boardViewDao" resultType="com.store.dto.BoardDto"> 
+	select * from board where id=#{id}
+</select>
+
+<select id="boardListAllCountDao" resultType="_int">
+	select count(*) from board
+	<if test='search != null || boardCat != null'>
+		where user_email like #{search} and boardCat like #{boardCat}
+	</if>
+</select>
+
+<select id="boardListCountDao" resultType="_int">
+	select count(*) from board where user_email=#{user_email}
+</select>
+
+<delete id="boardDeleteListDao">
+	delete from board where id=#{id}
+</delete>
+
+<update id="boardUpdateDao" parameterType="hashMap"> 
+	update board set 
+	<choose>
+	    <when test='file == null || file == "" '>
+	      title=#{title}, question=#{question}, boardCat=#{boardCat}, orderId=#{orderId}, regDate=now() 
+	    </when>
+	    <otherwise>
+	      title=#{title}, question=#{question}, boardCat=#{boardCat}, file=#{file}, orderId=#{orderId}, regDate=now() 
+	    </otherwise>
+  	</choose>
+	WHERE id=#{id}
+</update> 
+
+<update id="fileDeleteDao" > 
+	update board set file='' WHERE file=#{file}
+</update> 
+
+<select id="boardFileNameListDao" resultType="String">
+	select file from board
+</select>
+
+<update id="boardAnswerUpdate" > 
+	update board set b_check=1, answer=#{answer} WHERE id=#{id}
+</update> 
+
+<delete id="boardDelUserDao">
+	delete from board where user_email=#{user_email}
+</delete>
+
+<select id="bIdFindFileDao" resultType="String">
+		select file from board where id=#{id}
+</select>
+
+<select id="bEmailFindFileDao" resultType="String">
+		select file from board where user_email=#{user_email}
+</select>
+</mapper>
+
